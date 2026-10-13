@@ -1,7 +1,3 @@
-An immersive, high-performance portfolio website built with Vanilla JavaScript, CSS Design Tokens, and Three.js that features a continuous 3D camera flight path synchronized with the user's scroll progress. It showcases six procedural station models, real-time dynamic light and dark theme switching, an ambient particle field, and a fully responsive architecture that honors user motion preferences without requiring complex build tooling.
-
-Designed for quick deployment on static hosting platforms like Vercel, Netlify, or GitHub Pages, the project is organized into a modular structure with an HTML entry point, centralized stylesheet modules, and dedicated ES JavaScript files handling the Three.js rendering engine, camera spline navigation, theme persistence, and procedural geometries.
----
 
 ## 📁 Project Architecture
 
