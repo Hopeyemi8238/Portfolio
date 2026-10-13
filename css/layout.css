@@ -1,0 +1,145 @@
+/* ==========================================================================
+   Layout & Structural Components
+   ========================================================================== */
+
+/* Fixed Header Chrome */
+.top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(1rem + env(safe-area-inset-top, 0px)) clamp(1.25rem, 4vw, 3rem) 1rem;
+    pointer-events: none;
+}
+
+.top > * {
+    pointer-events: auto;
+}
+
+.mark {
+    font: 700 1.05rem var(--display);
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity .3s;
+}
+
+.show-mark .mark,
+.mark:focus-visible {
+    opacity: 1;
+}
+
+/* Theme Toggle Button */
+.theme-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color .2s, color .2s;
+}
+
+.theme-btn:hover {
+    background: var(--ink);
+    color: var(--bg);
+}
+
+.theme-btn svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.theme-btn .sun {
+    display: none;
+}
+
+.theme-btn.is-dark .sun {
+    display: block;
+}
+
+.theme-btn.is-dark .moon {
+    display: none;
+}
+
+/* Side Navigation Rail */
+.rail {
+    position: fixed;
+    right: clamp(.75rem, 2vw, 1.5rem);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .35rem;
+}
+
+.rail a {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .35rem .25rem;
+    color: var(--ink);
+    text-decoration: none;
+    font: 600 .9rem/1 var(--display);
+}
+
+.rail .label {
+    opacity: 0;
+    transform: translateX(6px);
+    transition: opacity .2s, transform .2s;
+    pointer-events: none;
+}
+
+.rail a:hover .label,
+.rail a:focus-visible .label,
+.rail a[aria-current="true"] .label {
+    opacity: 1;
+    transform: none;
+}
+
+.rail .pip {
+    width: .7rem;
+    height: .7rem;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    transition: background-color .2s, border-color .2s, transform .2s;
+}
+
+.rail a[aria-current="true"] .pip {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.25);
+}
+
+/* Stations (One per 3D Scene Object) */
+.station {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: 6rem clamp(1.25rem, 6vw, 5rem);
+}
+
+.copy {
+    max-width: 34rem;
+}
+
+.copy.wide {
+    max-width: 46rem;
+}

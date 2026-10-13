@@ -1,0 +1,24 @@
+{
+  "name": "3d-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive 3D flight-through portfolio built with Vanilla JS, CSS tokens, and Three.js.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "threejs",
+    "portfolio",
+    "creative-developer",
+    "interactive-webgl",
+    "3d"
+  ],
+  "author": "Taoheed Muhammed",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

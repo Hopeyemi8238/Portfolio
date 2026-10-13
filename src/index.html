@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Taoheed Muhammed | Software Developer</title>
+    <meta name="description"
+        content="Portfolio of Taoheed Muhammed, a creative developer and interface designer. Scroll to fly through a 3D space of selected work.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap">
+    <style>
+        /* ---------- Tokens ---------- */
+
+        :root {
+            --bg: #eaf0f6;
+            --ink: #0f1b33;
+            --muted: #475569;
+            --accent: #3b5bfd;
+            --line: rgba(15, 27, 51, 0.14);
+            --panel: rgba(234, 240, 246, 0.86);
+            --display: 'Bricolage Grotesque', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+            --text: 'Newsreader', Georgia, 'Times New Roman', serif;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0b1329;
+                --ink: #f1f5f9;
+                --muted: #94a3b8;
+                --accent: #6366f1;
+                --line: rgba(241, 245, 249, 0.12);
+                --panel: rgba(11, 19, 41, 0.84);
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0b1329;
+            --ink: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #6366f1;
+            --line: rgba(241, 245, 249, 0.12);
+            --panel: rgba(11, 19, 41, 0.84);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: inherit;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: env(safe-area-inset-top, 0px);
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 400 1.15rem/1.6 var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        /* ---------- 3D canvas ---------- */
+
+        #scene {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .no-webgl #scene {
+            display: none;
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ---------- Fixed chrome ---------- */
+
+        .top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: calc(1rem + env(safe-area-inset-top, 0px)) clamp(1.25rem, 4vw, 3rem) 1rem;
+            pointer-events: none;
+        }
+
+        .top>* {
+            pointer-events: auto;
+        }
+
+        .mark {
+            font: 700 1.05rem var(--display);
+            letter-spacing: -0.01em;
+            color: var(--ink);
+            text-decoration: none;
+            opacity: 0;
+            transition: opacity .3s;
+        }
+
+        .show-mark .mark,
+        .mark:focus-visible {
+            opacity: 1;
+        }
+
+        .theme-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            border: 2px solid var(--ink);
+            background: transparent;
+            color: var(--ink);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: background-color .2s, color .2s;
+        }
+
+        .theme-btn:hover {
+            background: var(--ink);
+            color: var(--bg);
+        }
+
+        .theme-btn svg {
+            width: 1.15rem;
+            height: 1.15rem;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .theme-btn .sun {
+            display: none;
+        }
+
+        .theme-btn.is-dark .sun {
+            display: block;
+        }
+
+        .theme-btn.is-dark .moon {
+            display: none;
+        }
+
+        .rail {
+            position: fixed;
+            right: clamp(.75rem, 2vw, 1.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .35rem;
+        }
+
+        .rail a {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .35rem .25rem;
+            color: var(--ink);
+            text-decoration: none;
+            font: 600 .9rem/1 var(--display);
+        }
+
+        .rail .label {
+            opacity: 0;
+            transform: translateX(6px);
+            transition: opacity .2s, transform .2s;
+            pointer-events: none;
+        }
+
+        .rail a:hover .label,
+        .rail a:focus-visible .label,
+        .rail a[aria-current="true"] .label {
+            opacity: 1;
+            transform: none;
+        }
+
+        .rail .pip {
+            width: .7rem;
+            height: .7rem;
+            border-radius: 50%;
+            border: 2px solid var(--ink);
+            transition: background-color .2s, border-color .2s, transform .2s;
+        }
+
+        .rail a[aria-current="true"] .pip {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.25);
+        }
+
+        /* ---------- Stations (one per 3D object) ---------- */
+
+        .station {
+            position: relative;
+            min-height: 100vh;
+            min-height: 100svh;
+            display: flex;
+            align-items: center;
+            padding: 6rem clamp(1.25rem, 6vw, 5rem);
+        }
+
+        .copy {
+            max-width: 34rem;
+        }
+
+        .copy.wide {
+            max-width: 46rem;
+        }
+
+        h1.name {
+            margin: 0 0 1.5rem;
+            font-family: var(--display);
+            font-weight: 800;
+            font-stretch: 82%;
+            font-size: clamp(4rem, 13vw, 10rem);
+            line-height: .84;
+            letter-spacing: -0.045em;
+        }
+
+        h1.name .line {
+            display: block;
+            overflow: hidden;
+            padding-bottom: .06em;
+        }
+
+        h1.name .line>span {
+            display: block;
+            transform: translateY(105%);
+            animation: rise 1.1s cubic-bezier(.2, .8, .2, 1) forwards;
+        }
+
+        h1.name .line:nth-child(2)>span {
+            animation-delay: .14s;
+        }
+
+        @keyframes rise {
+            to {
+                transform: none;
+            }
+        }
+
+        h2 {
+            margin: 0 0 1.1rem;
+            font: 700 clamp(2rem, 4.6vw, 3.5rem)/1.04 var(--display);
+            font-stretch: 90%;
+            letter-spacing: -0.025em;
+        }
+
+        p {
+            margin: 0 0 1rem;
+            max-width: 32rem;
+        }
+
+        .lede {
+            font-size: 1.35rem;
+            line-height: 1.45;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.25rem;
+            margin-top: 1.75rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: .8rem 1.5rem;
+            border-radius: 999px;
+            background: var(--ink);
+            color: var(--bg);
+            font: 600 1rem var(--display);
+            text-decoration: none;
+            transition: background-color .2s, color .2s;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .link {
+            color: var(--ink);
+            font: 600 1rem var(--display);
+            text-decoration: underline;
+            text-decoration-color: var(--accent);
+            text-decoration-thickness: 2px;
+            text-underline-offset: .28em;
+        }
+
+        .link:hover {
+            text-decoration-thickness: 4px;
+        }
+
+        .meta {
+            margin: 1.5rem 0 1.5rem;
+            max-width: 30rem;
+            font: 400 .98rem/1.4 var(--display);
+        }
+
+        .meta>div {
+            display: grid;
+            grid-template-columns: 7rem 1fr;
+            gap: 1rem;
+            padding: .6rem 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .meta>div:last-child {
+            border-bottom: 1px solid var(--line);
+        }
+
+        .meta dt {
+            color: var(--muted);
+        }
+
+        .meta dd {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .mail {
+            display: inline-block;
+            margin: .25rem 0 0;
+            font: 600 clamp(1rem, 1.25vw, 1.125rem)/1.25 var(--display);
+            letter-spacing: -0.015em;
+            color: var(--ink);
+            text-decoration: underline;
+            text-decoration-color: var(--accent);
+            text-decoration-thickness: 2px;
+            text-underline-offset: .25em;
+            overflow-wrap: anywhere;
+            transition: color .2s, text-decoration-color .2s;
+        }
+
+        .mail:hover {
+            color: var(--accent);
+        }
+
+        .social {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            padding: 0;
+            margin: 1.75rem 0 0;
+        }
+
+        .fine {
+            margin-top: 2.5rem;
+            font: 400 .9rem var(--display);
+            color: var(--muted);
+        }
+
+        .hint {
+            position: absolute;
+            left: clamp(1.25rem, 6vw, 5rem);
+            bottom: 2rem;
+            font: 500 .95rem var(--display);
+            color: var(--muted);
+            transition: opacity .4s;
+        }
+
+        .scrolled .hint {
+            opacity: 0;
+        }
+
+        /* ---------- Small screens: object up top, text panel below ---------- */
+
+        @media (max-width: 759px) {
+            .station {
+                align-items: flex-end;
+                padding: 5rem 1rem 5.5rem;
+            }
+
+            .copy {
+                background: var(--panel);
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                padding: 1.25rem;
+                border-radius: 1rem;
+            }
+
+            h1.name {
+                font-size: clamp(3.4rem, 17vw, 5.5rem);
+                margin-bottom: 1rem;
+            }
+
+            .lede {
+                font-size: 1.15rem;
+            }
+
+            .hint {
+                display: none;
+            }
+
+            .meta>div {
+                grid-template-columns: 5.5rem 1fr;
+            }
+
+            .rail {
+                top: auto;
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: calc(.8rem + env(safe-area-inset-bottom, 0px));
+                flex-direction: row;
+                align-items: center;
+                gap: .1rem;
+                padding: .2rem .6rem;
+                background: var(--panel);
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+                border-radius: 999px;
+            }
+
+            .rail .label {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0 0 0 0);
+                white-space: nowrap;
+                opacity: 1;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            h1.name .line>span {
+                animation: none;
+                transform: none;
+            }
+
+            .rail .label,
+            .rail .pip {
+                transition: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="scene" aria-hidden="true"></canvas>
+
+    <header class="top">
+        <a class="mark" href="#intro">Taoheed Muhammed</a>
+        <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark theme">
+            <svg class="moon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+            </svg>
+            <svg class="sun" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path
+                    d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg>
+        </button>
+    </header>
+
+    <nav class="rail" aria-label="Sections">
+        <a href="#intro"><span class="label">Intro</span><span class="pip"></span></a>
+        <a href="#about"><span class="label">About</span><span class="pip"></span></a>
+        <a href="#thinkrich"><span class="label">ThinkRich</span><span class="pip"></span></a>
+        <a href="#chowse"><span class="label">Chowse</span><span class="pip"></span></a>
+        <a href="#gat"><span class="label">GAT24</span><span class="pip"></span></a>
+        <a href="#kingkam"><span class="label">Kingkam</span><span class="pip"></span></a>
+        <a href="#newgrace"><span class="label">New Grace</span><span class="pip"></span></a>
+        <a href="#contact"><span class="label">Contact</span><span class="pip"></span></a>
+    </nav>
+
+    <main>
+        <!-- Station 0: Intro / Hero -->
+        <section class="station" id="intro" data-station>
+            <div class="copy wide">
+                <h1 class="name"><span class="line"><span>Taoheed</span></span><span
+                        class="line"><span>Muhammed</span></span>
+                </h1>
+                <p class="lede">Web &amp; Mobile App Developer with 5+ years of experience crafting scalable mobile
+                    applications, dynamic web platforms, and high-performance interactive interfaces.</p>
+                <div class="actions">
+                    <a class="btn" href="#thinkrich">Explore selected work</a>
+                    <a class="link" href="#contact">Get in touch</a>
+                </div>
+            </div>
+            <p class="hint">Scroll to move through the work</p>
+        </section>
+
+        <!-- Station 1: About -->
+        <section class="station" id="about" data-station>
+            <div class="copy">
+                <h2>Engineering digital products that scale.</h2>
+                <p>I'm a Web and Mobile App Developer with over 5 years of professional experience building dependable
+                    digital solutions. My expertise spans cross-platform mobile development with React Native and modern
+                    full-stack web engineering with PHP/Laravel, React, and Node.js.</p>
+                <p>I have built interactive quiz engines, luxury member portals, media publications, real estate
+                    systems, and Web3 marketplaces—combining clean architecture, fast performance, and meticulous user
+                    experience.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Mobile Stack</dt>
+                        <dd>React Native, Expo, Cross-Platform iOS &amp; Android</dd>
+                    </div>
+                    <div>
+                        <dt>Web &amp; Backend</dt>
+                        <dd>React.js, TypeScript, PHP / Laravel, Node.js, MySQL</dd>
+                    </div>
+                    <div>
+                        <dt>Key Strengths</dt>
+                        <dd>API Integration, UI/UX Implementation, Performance Tuning</dd>
+                    </div>
+                    <div>
+                        <dt>Location</dt>
+                        <dd>Nigeria &middot; Available worldwide for remote roles &amp; contracts</dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+
+        <!-- Station 2: Project 1 (ThinkRich Naija) -->
+        <section class="station" id="thinkrich" data-station>
+            <div class="copy">
+                <h2>ThinkRich Naija</h2>
+                <p>A real-time, interactive quiz platform supporting both web and mobile applications with high
+                    concurrency. Engineered with an 8-second countdown question delivery system, dynamic scoring
+                    algorithms, secure authentication, and server-side validation to ensure competitive integrity.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2026</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Mobile App &amp; Backend Developer</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>React Native, PHP, Laravel, REST APIs, MySQL</dd>
+                    </div>
+                </dl>
+                <a class="link" href="https://app.thinkrichnaija.com" target="_blank" rel="noopener noreferrer">Visit
+                    ThinkRich Platform &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 3: Project 2 (Chowse) -->
+        <section class="station" id="chowse" data-station>
+            <div class="copy">
+                <h2>Chowse</h2>
+                <p>A smart meal planning and nutrition web and mobile application focused on high performance, smooth
+                    user experiences, and responsive design. Built with personalized meal recommendations, dietary
+                    preference controls, budget tracking calculators, offline-ready grocery checklists sorted by
+                    supermarket aisles, and integrated backend APIs for user calibration, dietary toggles, meal
+                    matching logic, and location-based local spot dining options.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2025 &ndash; 2026</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Mobile App Developer (Contract)</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>React Native, Cross-Platform Mobile, Dynamic REST APIs, Offline Storage</dd>
+                    </div>
+                </dl>
+                <a class="link" href="https://getchowse.com/" target="_blank" rel="noopener noreferrer">Visit Chowse
+                    Platform &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 4: Project 3 (Green Africa Time) -->
+        <section class="station" id="gat" data-station>
+            <div class="copy">
+                <h2>Green Africa Time</h2>
+                <p>A modern, responsive pan-African news and media platform delivering timely continental and global
+                    news. Built with dynamic content categories (Politics, Tech, Climate, Agriculture), an
+                    administrative editorial publishing workflow, and search &amp; filtering tools.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2026 &ndash; Present</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Full-Stack Web Developer</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>Responsive Web, Dynamic CMS, Search &amp; Filter APIs</dd>
+                    </div>
+                </dl>
+                <a class="link" href="https://www.gat24.com" target="_blank" rel="noopener noreferrer">Visit GAT24
+                    Platform &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 5: Project 4 (Kingkam Ventures) -->
+        <section class="station" id="kingkam" data-station>
+            <div class="copy">
+                <h2>Kingkam Ventures</h2>
+                <p>A modern, responsive real estate web platform to showcase property listings, architectural
+                    portfolios, and company services, improving online visibility and lead generation. Built with
+                    property listing management features, inquiry and viewing scheduling workflows, and optimized mobile
+                    performance and SEO.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2025 &ndash; Present</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Web Developer (Remote)</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>Responsive Web, Real Estate CMS, Lead Gen &amp; SEO</dd>
+                    </div>
+                </dl>
+                <a class="link" href="http://kingkamventures.com" target="_blank" rel="noopener noreferrer">Visit
+                    Kingkam Ventures &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 6: Project 5 (New Grace Academy) -->
+        <section class="station" id="newgrace" data-station>
+            <div class="copy">
+                <h2>New Grace Academy</h2>
+                <p>An institutional academic website and internal school portal upgraded to include dynamic content and
+                    responsive layouts, improving usability by 40%. Features an internal portal for staff and students
+                    to manage schedules, assignments, and announcements, integrated with secure fee payment processing
+                    and automated invoicing.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2025 &ndash; Present</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Web Developer (Remote)</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>Academic Web Portal, Dynamic CMS, Secure Payments</dd>
+                    </div>
+                </dl>
+                <a class="link" href="https://www.newgracenj.academy" target="_blank" rel="noopener noreferrer">Visit
+                    New Grace Academy &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 7: Contact -->
+        <section class="station" id="contact" data-station>
+            <div class="copy">
+                <h2>Let's build something remarkable.</h2>
+                <p>I'm booking new contract projects, full-time engineering roles, and team collaborations. Whether you
+                    need a cross-platform mobile app, a scalable backend, or a fast web platform, let's talk.</p>
+                <a class="mail" href="mailto:muhammedtaoheed@gmail.com">muhammedtaoheed@gmail.com</a>
+                <ul class="social">
+                    <li><a class="link" href="https://linkedin.com/in/taoheed-muhammed" target="_blank"
+                            rel="noopener noreferrer">LinkedIn</a></li>
+                    <li><a class="link" href="https://taoheed-porfolio.my.canva.site/" target="_blank"
+                            rel="noopener noreferrer">Canva Portfolio</a></li>
+                    <li><a class="link" href="tel:+2348106170404">+234 810 617 0404</a></li>
+                </ul>
+                <p class="fine">&copy; 2026 Taoheed Muhammed</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            var doc = document.documentElement;
+            var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var sections = [].slice.call(document.querySelectorAll('[data-station]'));
+            var railLinks = [].slice.call(document.querySelectorAll('.rail a'));
+            var themeBtn = document.getElementById('themeBtn');
+            var N = sections.length;
+
+            /* ---------- Theme ---------- */
+            try {
+                var saved = localStorage.getItem('portfolio-theme');
+                if (!doc.hasAttribute('data-theme') && (saved === 'light' || saved === 'dark')) doc.setAttribute('data-theme', saved);
+            } catch (e) { }
+
+            function effectiveTheme() {
+                var a = doc.getAttribute('data-theme');
+                if (a === 'light' || a === 'dark') return a;
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            themeBtn.addEventListener('click', function () {
+                var next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+                doc.setAttribute('data-theme', next);
+                try {
+                    localStorage.setItem('portfolio-theme', next);
+                } catch (e) { }
+            });
+
+            var onThemeChange = function () { };
+
+            function syncThemeUI() {
+                var dark = effectiveTheme() === 'dark';
+                themeBtn.classList.toggle('is-dark', dark);
+                themeBtn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+                onThemeChange();
+            }
+            new MutationObserver(syncThemeUI).observe(doc, {
+                attributes: true,
+                attributeFilter: ['data-theme']
+            });
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeUI);
+
+            /* ---------- Scroll bookkeeping ---------- */
+            var tops = [];
+
+            function computeTops() {
+                tops = sections.map(function (s) {
+                    return s.getBoundingClientRect().top + window.pageYOffset;
+                });
+            }
+
+            function progressF() {
+                var y = window.pageYOffset,
+                    i = 0;
+                for (var k = 0; k < N - 1; k++)
+                    if (y >= tops[k]) i = k;
+                var a = tops[i],
+                    b = tops[i + 1] !== undefined ? tops[i + 1] : a + 1;
+                var f = i + (y - a) / Math.max(1, b - a);
+                return Math.max(0, Math.min(N - 1, f));
+            }
+
+            function setActive(idx) {
+                railLinks.forEach(function (a, i) {
+                    if (i === idx) a.setAttribute('aria-current', 'true');
+                    else a.removeAttribute('aria-current');
+                });
+                doc.classList.toggle('show-mark', idx > 0);
+            }
+            window.addEventListener('scroll', function () {
+                doc.classList.toggle('scrolled', window.pageYOffset > 40);
+            }, {
+                passive: true
+            });
+
+            computeTops();
+            setActive(0);
+            syncThemeUI();
+
+            /* ---------- WebGL scene ---------- */
+            if (typeof THREE === 'undefined') {
+                doc.classList.add('no-webgl');
+                return;
+            }
+
+            var canvas = document.getElementById('scene');
+            var renderer;
+            try {
+                renderer = new THREE.WebGLRenderer({
+                    canvas: canvas,
+                    antialias: true,
+                    alpha: true,
+                    powerPreference: 'high-performance'
+                });
+            } catch (e) {
+                doc.classList.add('no-webgl');
+                return;
+            }
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setClearColor(0x000000, 0);
+
+            var scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0xeaf0f6, 12, 44);
+            var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
+            scene.add(camera);
+
+            var hemi = new THREE.HemisphereLight(0xffffff, 0x8fa3bd, 0.75);
+            scene.add(hemi);
+            var key = new THREE.DirectionalLight(0xffffff, 0.95);
+            key.position.set(4, 7, 8);
+            key.target.position.set(0, 0, -10);
+            camera.add(key);
+            camera.add(key.target);
+
+            var fill = new THREE.DirectionalLight(0xdbeafe, 0.45);
+            fill.position.set(-5, -4, 6);
+            camera.add(fill);
+
+            var rim = new THREE.DirectionalLight(0xc7d2fe, 0.4);
+            rim.position.set(0, 8, -8);
+            camera.add(rim);
+
+            var C = {
+                azure: 0x3b82f6,
+                cobalt: 0x3b82f6,
+                cyan: 0x38bdf8,
+                purple: 0x8b5cf6,
+                emerald: 0x10b981,
+                amber: 0xf59e0b,
+                coral: 0xf43f5e,
+                slate: 0x1e293b,
+                silver: 0xf1f5f9
+            };
+
+            function mat(color, roughness, metalness) {
+                return new THREE.MeshStandardMaterial({
+                    color: color,
+                    roughness: roughness !== undefined ? roughness : 0.28,
+                    metalness: metalness !== undefined ? metalness : 0.32,
+                    flatShading: true
+                });
+            }
+            var inkMats = [];
+
+            function inkLine(opacity) {
+                var m = new THREE.LineBasicMaterial({
+                    color: 0x0f1b33,
+                    transparent: true,
+                    opacity: opacity
+                });
+                inkMats.push(m);
+                return m;
+            }
+
+            function inkWire(opacity) {
+                var m = new THREE.MeshBasicMaterial({
+                    color: 0x0f1b33,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: opacity
+                });
+                inkMats.push(m);
+                return m;
+            }
+
+            onThemeChange = function () {
+                var cs = getComputedStyle(doc);
+                var bg = new THREE.Color(cs.getPropertyValue('--bg').trim() || '#eaf0f6');
+                var ink = new THREE.Color(cs.getPropertyValue('--ink').trim() || '#0f1b33');
+                var dark = (bg.r + bg.g + bg.b) < 1.5;
+                scene.fog.color.copy(bg);
+                inkMats.forEach(function (m) {
+                    m.color.copy(ink);
+                });
+                hemi.intensity = dark ? 0.65 : 0.8;
+                key.intensity = dark ? 0.85 : 0.95;
+                fill.intensity = dark ? 0.35 : 0.45;
+                rim.intensity = dark ? 0.5 : 0.35;
+            };
+
+            /* ----- Tech-Native Station 3D Models ----- */
+
+            /* 0. Quantum Processor Core (Foundational Tech) */
+            function makeHero() {
+                var g = new THREE.Group();
+
+                var socket = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.2, 3.2), mat(C.slate, 0.5, 0.7));
+                socket.position.y = -1.4;
+                g.add(socket);
+
+                var heatSpreader = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.25, 2.4), mat(C.silver, 0.2, 0.8));
+                heatSpreader.position.y = -1.2;
+                g.add(heatSpreader);
+
+                for (var i = -1.3; i <= 1.3; i += 0.52) {
+                    [-1.65, 1.65].forEach(function (posZ) {
+                        var pin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 0.3), mat(C.amber, 0.2, 0.9));
+                        pin.position.set(i, -1.4, posZ);
+                        g.add(pin);
+                    });
+                    [-1.65, 1.65].forEach(function (posX) {
+                        var pin = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.12), mat(C.amber, 0.2, 0.9));
+                        pin.position.set(posX, -1.4, i);
+                        g.add(pin);
+                    });
+                }
+
+                var core = new THREE.Mesh(new THREE.OctahedronGeometry(1.2, 0), mat(C.cyan, 0.1, 0.2));
+                var coreWire = new THREE.Mesh(new THREE.OctahedronGeometry(1.4, 0), inkWire(0.6));
+                var innerCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.6, 0), mat(C.purple, 0.3, 0.1));
+                core.add(coreWire, innerCore);
+                g.add(core);
+
+                var gyro1 = new THREE.Mesh(new THREE.TorusGeometry(2.3, 0.05, 16, 100), mat(C.cobalt, 0.3, 0.6));
+                var gyro2 = new THREE.Mesh(new THREE.TorusGeometry(2.7, 0.04, 16, 100), mat(C.amber, 0.3, 0.6));
+                gyro1.rotation.x = Math.PI / 3;
+                gyro2.rotation.set(Math.PI / 4, 0.5, 0);
+                g.add(gyro1, gyro2);
+
+                var dataPackets = [];
+                for (var pIdx = 0; pIdx < 6; pIdx++) {
+                    var p = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2), mat(pIdx % 2 === 0 ? C.cyan : C.emerald, 0.2, 0.5));
+                    g.add(p);
+                    dataPackets.push(p);
+                }
+
+                var scannerRing = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.03, 8, 80), mat(C.emerald, 0.2, 0.1));
+                g.add(scannerRing);
+
+                g.userData.update = function (t) {
+                    core.rotation.y = t * 0.5;
+                    core.rotation.x = Math.sin(t * 0.4) * 0.2;
+                    innerCore.rotation.set(-t * 0.8, t * 0.6, 0);
+
+                    gyro1.rotation.z = t * 0.3;
+                    gyro2.rotation.x = Math.PI / 4 + t * 0.25;
+
+                    scannerRing.position.y = Math.sin(t * 1.5) * 1.3;
+                    scannerRing.scale.setScalar(1 + Math.sin(t * 3) * 0.08);
+
+                    dataPackets.forEach(function (dp, idx) {
+                        var angle = t * 0.8 + (idx * Math.PI * 2) / 6;
+                        var r = 2.4 + Math.sin(t * 1.2 + idx) * 0.3;
+                        dp.position.set(Math.cos(angle) * r, Math.sin(angle * 2) * 0.7, Math.sin(angle) * r);
+                        dp.rotation.set(angle, angle * 1.5, 0);
+                    });
+                };
+                return g;
+            }
+
+            /* 1. Modular Server Architecture (Cloud Blades & Backend) */
+            function makeStack() {
+                var g = new THREE.Group();
+                var blades = [];
+                var leds = [];
+                var bladeColors = [C.cobalt, C.cyan, C.purple, C.emerald, C.amber];
+
+                for (var i = 0; i < 5; i++) {
+                    var bladeGroup = new THREE.Group();
+                    var chassis = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.36, 2.2), mat(C.slate, 0.4, 0.7));
+                    bladeGroup.add(chassis);
+
+                    var faceplate = new THREE.Mesh(new THREE.BoxGeometry(3.04, 0.38, 0.08), mat(bladeColors[i % 5], 0.3, 0.5));
+                    faceplate.position.z = 1.12;
+                    bladeGroup.add(faceplate);
+
+                    [-1.56, 1.56].forEach(function (x) {
+                        var ear = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.42, 0.12), mat(C.silver, 0.2, 0.9));
+                        ear.position.set(x, 0, 1.12);
+                        bladeGroup.add(ear);
+                    });
+
+                    for (var j = -1.0; j <= 1.0; j += 0.5) {
+                        var led = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), mat(j > 0 ? C.emerald : C.cyan, 0.1, 0.1));
+                        led.position.set(j, 0, 1.18);
+                        bladeGroup.add(led);
+                        leds.push({ mesh: led, phase: Math.random() * 6.28, speed: 2 + Math.random() * 4 });
+                    }
+
+                    bladeGroup.position.y = (i - 2) * 0.72;
+                    g.add(bladeGroup);
+                    blades.push(bladeGroup);
+                }
+
+                [[-1.4, -1.0], [1.4, -1.0], [-1.4, 1.0], [1.4, 1.0]].forEach(function (c) {
+                    var conduit = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.8, 16), mat(C.cyan, 0.2, 0.2));
+                    conduit.position.set(c[0], 0, c[1]);
+                    g.add(conduit);
+                });
+
+                g.rotation.x = 0.25;
+
+                g.userData.update = function (t) {
+                    blades.forEach(function (b, idx) {
+                        b.rotation.y = Math.sin(t * 0.7 + idx * 0.5) * 0.22;
+                        b.position.y = (idx - 2) * 0.72 + Math.sin(t * 1.1 + idx * 0.8) * 0.08;
+                    });
+                    leds.forEach(function (l) {
+                        var s = 0.7 + Math.sin(t * l.speed + l.phase) * 0.5;
+                        l.mesh.scale.setScalar(Math.max(0.3, s));
+                    });
+                };
+                return g;
+            }
+
+            /* 2. ThinkRich Mobile Quiz Terminal & 8s Engine */
+            function makeKnot() {
+                var g = new THREE.Group();
+
+                var phone = new THREE.Group();
+                var body = new THREE.Mesh(new THREE.BoxGeometry(2.1, 4.0, 0.16), mat(C.slate, 0.3, 0.8));
+                var screen = new THREE.Mesh(new THREE.BoxGeometry(1.9, 3.8, 0.04), mat(C.cobalt, 0.2, 0.4));
+                screen.position.z = 0.07;
+                var cameraIsland = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.16, 0.06), mat(C.slate, 0.2, 0.9));
+                cameraIsland.position.set(0, 1.76, 0.1);
+                phone.add(body, screen, cameraIsland);
+                g.add(phone);
+
+                var gaugeGroup = new THREE.Group();
+                gaugeGroup.position.set(0, 0.2, 0.8);
+
+                var timerRing = new THREE.Mesh(new THREE.TorusGeometry(1.3, 0.06, 16, 80), mat(C.amber, 0.2, 0.3));
+                var timerHalo = new THREE.Mesh(new THREE.TorusGeometry(1.48, 0.02, 12, 80), inkWire(0.5));
+                var needle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.1, 8), mat(C.cyan, 0.1, 0.5));
+                needle.position.y = 0.55;
+                var needlePivot = new THREE.Group();
+                needlePivot.add(needle);
+
+                var hub = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.1, 24), mat(C.amber, 0.2, 0.8));
+                hub.rotation.x = Math.PI / 2;
+                gaugeGroup.add(timerRing, timerHalo, needlePivot, hub);
+                g.add(gaugeGroup);
+
+                var optionNodes = [];
+                var optionOffsets = [
+                    [-1.9, 1.2, 0.4],
+                    [1.9, 1.2, 0.4],
+                    [-1.9, -1.2, 0.4],
+                    [1.9, -1.2, 0.4]
+                ];
+
+                var optionColors = [C.emerald, C.cyan, C.purple, C.amber];
+                optionOffsets.forEach(function (off, idx) {
+                    var opt = new THREE.Mesh(
+                        new THREE.OctahedronGeometry(0.28, 0),
+                        mat(optionColors[idx % optionColors.length], 0.2, 0.4)
+                    );
+                    opt.position.set(off[0], off[1], off[2]);
+                    g.add(opt);
+                    optionNodes.push(opt);
+                });
+
+                g.userData.update = function (t) {
+                    phone.rotation.y = Math.sin(t * 0.8) * 0.28;
+                    phone.rotation.x = Math.cos(t * 0.6) * 0.14;
+                    needlePivot.rotation.z = -((t * 2) % (Math.PI * 2));
+                    gaugeGroup.rotation.y = phone.rotation.y * 0.7;
+
+                    optionNodes.forEach(function (node, idx) {
+                        node.rotation.set(t * (1 + idx * 0.2), t * 0.8, 0);
+                        node.position.y = optionOffsets[idx][1] + Math.sin(t * 2 + idx * 1.5) * 0.15;
+                    });
+                };
+                return g;
+            }
+
+            /* 3. Chowse Smart Meal & Nutrition Matrix */
+            function makeChowse() {
+                var g = new THREE.Group();
+
+                var core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.0, 0), mat(C.emerald, 0.2, 0.4));
+                var coreHalo = new THREE.Mesh(new THREE.IcosahedronGeometry(1.25, 0), inkWire(0.5));
+                core.add(coreHalo);
+                g.add(core);
+
+                var dialRing1 = new THREE.Mesh(new THREE.TorusGeometry(2.0, 0.06, 16, 90), mat(C.cyan, 0.2, 0.6));
+                var dialRing2 = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.04, 16, 90), mat(C.amber, 0.2, 0.7));
+                dialRing1.rotation.x = Math.PI / 2.5;
+                dialRing2.rotation.set(Math.PI / 3, 0.4, 0);
+                g.add(dialRing1, dialRing2);
+
+                var nutrientNodes = [];
+                var nodeColors = [C.emerald, C.cyan, C.amber];
+                for (var i = 0; i < 3; i++) {
+                    var node = new THREE.Mesh(new THREE.OctahedronGeometry(0.32, 0), mat(nodeColors[i], 0.2, 0.5));
+                    g.add(node);
+                    nutrientNodes.push(node);
+                }
+
+                var aislePods = [];
+                var podTrack = new THREE.Mesh(new THREE.TorusGeometry(2.7, 0.02, 12, 100), inkWire(0.35));
+                podTrack.rotation.x = Math.PI / 4;
+                g.add(podTrack);
+
+                for (var p = 0; p < 4; p++) {
+                    var pod = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.3, 0.22, 0.15),
+                        mat(p % 2 === 0 ? C.emerald : C.cyan, 0.2, 0.8)
+                    );
+                    podTrack.add(pod);
+                    aislePods.push(pod);
+                }
+
+                g.userData.update = function (t) {
+                    core.rotation.set(t * 0.3, t * 0.4, 0);
+                    dialRing1.rotation.z = t * 0.4;
+                    dialRing2.rotation.z = -t * 0.3;
+
+                    nutrientNodes.forEach(function (node, idx) {
+                        var angle = (idx * Math.PI * 2) / 3 + t * 0.6;
+                        var r = 1.9 + Math.sin(t * 1.5 + idx) * 0.15;
+                        node.position.set(Math.cos(angle) * r, Math.sin(angle * 1.8) * 0.6, Math.sin(angle) * r);
+                        node.rotation.set(angle, angle * 1.2, 0);
+                    });
+
+                    aislePods.forEach(function (pod, idx) {
+                        var angle = (idx * Math.PI * 2) / 4 + t * 0.5;
+                        pod.position.set(Math.cos(angle) * 2.7, Math.sin(angle) * 2.7, 0);
+                        pod.rotation.set(angle, angle * 1.5, 0);
+                    });
+                };
+                return g;
+            }
+
+            /* 4. Green Africa Time (GAT24) Global Broadcast Satellite & Digital Earth */
+            function makeLattice() {
+                var g = new THREE.Group();
+
+                var globeGroup = new THREE.Group();
+                var earthWire = new THREE.Mesh(
+                    new THREE.SphereGeometry(1.7, 24, 16),
+                    new THREE.MeshBasicMaterial({ color: C.cobalt, wireframe: true, transparent: true, opacity: 0.35 })
+                );
+                globeGroup.add(earthWire);
+
+                var innerGlobe = new THREE.Mesh(new THREE.SphereGeometry(1.5, 32, 24), mat(C.slate, 0.6, 0.4));
+                globeGroup.add(innerGlobe);
+
+                var hotspotPositions = [
+                    [0.8, 0.4, 1.4],
+                    [-0.3, 0.2, 1.6],
+                    [0.2, -0.6, 1.5],
+                    [-1.1, 0.8, 1.0],
+                    [1.2, -0.4, 0.9]
+                ];
+                hotspotPositions.forEach(function (hp) {
+                    var h = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.4, 12), mat(C.emerald, 0.2, 0.2));
+                    h.position.set(hp[0], hp[1], hp[2]);
+                    h.lookAt(0, 0, 0);
+                    globeGroup.add(h);
+                });
+                g.add(globeGroup);
+
+                var satelliteGroup = new THREE.Group();
+                var satBody = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.35), mat(C.amber, 0.2, 0.8));
+                var solarLeft = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.28, 0.04), mat(C.cyan, 0.2, 0.3));
+                solarLeft.position.x = -0.6;
+                var solarRight = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.28, 0.04), mat(C.cyan, 0.2, 0.3));
+                solarRight.position.x = 0.6;
+                var dish = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.18, 16, 1, true), mat(C.silver, 0.2, 0.8));
+                dish.position.z = 0.24;
+                dish.rotation.x = Math.PI / 2;
+                satelliteGroup.add(satBody, solarLeft, solarRight, dish);
+
+                var orbitTrack = new THREE.Mesh(new THREE.TorusGeometry(2.7, 0.02, 12, 100), inkWire(0.4));
+                orbitTrack.rotation.x = Math.PI / 3;
+                orbitTrack.add(satelliteGroup);
+                g.add(orbitTrack);
+
+                var waveRings = [];
+                for (var w = 0; w < 3; w++) {
+                    var ring = new THREE.Mesh(new THREE.RingGeometry(1.75, 1.82, 32), mat(C.cyan, 0.2, 0.1));
+                    ring.position.set(0.2, 0.3, 1.6);
+                    ring.lookAt(0.4, 0.6, 3.2);
+                    g.add(ring);
+                    waveRings.push(ring);
+                }
+
+                g.userData.update = function (t) {
+                    globeGroup.rotation.y = t * 0.2;
+                    satelliteGroup.position.set(Math.cos(t * 0.7) * 2.7, Math.sin(t * 0.7) * 2.7, 0);
+                    satelliteGroup.rotation.z = t * 0.7 + Math.PI / 2;
+
+                    waveRings.forEach(function (ring, idx) {
+                        var progress = ((t * 0.8 + idx * 0.33) % 1);
+                        ring.scale.setScalar(1 + progress * 0.9);
+                        if (ring.material) {
+                            ring.material.opacity = 1 - progress;
+                            ring.material.transparent = true;
+                        }
+                    });
+                };
+                return g;
+            }
+
+            var pointerX = 0,
+                pointerY = 0;
+
+            /* 5. Kingkam Ventures Real Estate Blueprint & Smart Architecture */
+            function makeRealEstate() {
+                var g = new THREE.Group();
+
+                var siteGrid = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.1, 3.6), mat(C.slate, 0.5, 0.7));
+                siteGrid.position.y = -1.6;
+                var gridWire = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(3.6, 0.1, 3.6)), mat(C.cyan, 0.2, 0.5));
+                siteGrid.add(gridWire);
+                g.add(siteGrid);
+
+                var towerGroup = new THREE.Group();
+                var baseBlock = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.4, 2.0), mat(C.silver, 0.3, 0.8));
+                baseBlock.position.y = -0.85;
+
+                var midBlock = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.2, 1.6), mat(C.cobalt, 0.2, 0.4));
+                midBlock.position.y = 0.45;
+
+                var topBlock = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.8, 1.1), mat(C.emerald, 0.2, 0.5));
+                topBlock.position.y = 1.45;
+
+                var canopy = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.08, 1.3), mat(C.cyan, 0.2, 0.8));
+                canopy.position.y = 1.88;
+
+                towerGroup.add(baseBlock, midBlock, topBlock, canopy);
+                g.add(towerGroup);
+
+                var beaconGroup = new THREE.Group();
+                var pinCone = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.5, 16), mat(C.amber, 0.2, 0.8));
+                pinCone.rotation.x = Math.PI;
+                var pinOrb = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 12), mat(C.amber, 0.1, 0.5));
+                pinOrb.position.y = 0.35;
+                beaconGroup.add(pinCone, pinOrb);
+                beaconGroup.position.set(0, 2.7, 0);
+                g.add(beaconGroup);
+
+                var droneGroup = new THREE.Group();
+                var droneBody = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.3), mat(C.cyan, 0.2, 0.8));
+                var droneHalo = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.02, 8, 24), mat(C.emerald, 0.1, 0.2));
+                droneGroup.add(droneBody, droneHalo);
+
+                var surveyTrack = new THREE.Mesh(new THREE.TorusGeometry(2.8, 0.02, 12, 100), inkWire(0.35));
+                surveyTrack.rotation.x = Math.PI / 2.6;
+                surveyTrack.add(droneGroup);
+                g.add(surveyTrack);
+
+                g.userData.update = function (t) {
+                    towerGroup.rotation.y = t * 0.2;
+                    beaconGroup.position.y = 2.7 + Math.sin(t * 2) * 0.18;
+                    beaconGroup.rotation.y = t * 0.8;
+
+                    droneGroup.position.set(Math.cos(t * 0.9) * 2.8, Math.sin(t * 0.9) * 2.8, 0);
+                    droneGroup.rotation.z = t * 0.9 + Math.PI / 2;
+                };
+                return g;
+            }
+
+            /* 6. New Grace Academy Digital Academic Portal & Knowledge Prism */
+            function makeAcademy() {
+                var g = new THREE.Group();
+
+                var tablet = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.14, 2.2), mat(C.slate, 0.4, 0.7));
+                tablet.position.y = -1.5;
+                var screen = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.04, 1.9), mat(C.cyan, 0.2, 0.3));
+                screen.position.set(0, -1.42, 0);
+                g.add(tablet, screen);
+
+                var prismGroup = new THREE.Group();
+                var tier1 = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.9, 0.5, 8), mat(C.cobalt, 0.3, 0.5));
+                tier1.position.y = -0.8;
+                var tier2 = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.5, 0.5, 8), mat(C.purple, 0.3, 0.5));
+                tier2.position.y = -0.2;
+                var tier3 = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.1, 0.5, 8), mat(C.emerald, 0.3, 0.5));
+                tier3.position.y = 0.4;
+
+                var apexGem = new THREE.Mesh(new THREE.OctahedronGeometry(0.65, 0), mat(C.amber, 0.15, 0.7));
+                apexGem.position.y = 1.25;
+
+                prismGroup.add(tier1, tier2, tier3, apexGem);
+                g.add(prismGroup);
+
+                var credentials = [];
+                var credTrack = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.02, 12, 100), inkWire(0.4));
+                credTrack.rotation.x = Math.PI / 3;
+                g.add(credTrack);
+
+                for (var i = 0; i < 4; i++) {
+                    var card = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.3, 0.05), mat(i % 2 === 0 ? C.cyan : C.amber, 0.2, 0.8));
+                    credTrack.add(card);
+                    credentials.push(card);
+                }
+
+                g.userData.update = function (t) {
+                    tier1.rotation.y = t * 0.25;
+                    tier2.rotation.y = -t * 0.35;
+                    tier3.rotation.y = t * 0.45;
+                    apexGem.rotation.set(t * 0.5, t * 0.6, 0);
+                    apexGem.position.y = 1.25 + Math.sin(t * 1.8) * 0.12;
+
+                    credentials.forEach(function (card, idx) {
+                        var angle = (idx * Math.PI * 2) / 4 + t * 0.6;
+                        card.position.set(Math.cos(angle) * 2.6, Math.sin(angle) * 2.6, 0);
+                        card.rotation.set(angle, angle * 1.2, 0);
+                    });
+                };
+                return g;
+            }
+
+            /* 7. Interactive Quantum Nexus Gateway (Developer Hyperdrive) */
+            function makePortal() {
+                var g = new THREE.Group();
+                var outerRing = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.22, 24, 90), mat(C.cobalt, 0.3, 0.6));
+                var innerRing = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.14, 20, 80), mat(C.cyan, 0.2, 0.8));
+                g.add(outerRing, innerRing);
+
+                var orb = new THREE.Mesh(new THREE.SphereGeometry(0.85, 40, 30), mat(C.purple, 0.1, 0.3));
+                var orbWire = new THREE.Mesh(new THREE.SphereGeometry(1.05, 16, 12), inkWire(0.5));
+                orb.add(orbWire);
+                g.add(orb);
+
+                var cubes = [];
+                var cubeCount = 10;
+                var cubeColors = [C.emerald, C.cyan, C.amber, C.purple, C.coral];
+                for (var i = 0; i < cubeCount; i++) {
+                    var c = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.25, 0.25, 0.25),
+                        mat(cubeColors[i % cubeColors.length], 0.2, 0.4)
+                    );
+                    g.add(c);
+                    cubes.push(c);
+                }
+                g.add(outerRing, innerRing, orb);
+
+                g.userData.update = function (t) {
+                    outerRing.rotation.set(t * 0.25, t * 0.15, 0);
+                    innerRing.rotation.set(-t * 0.35, -t * 0.2, t * 0.1);
+
+                    orb.position.x += (pointerX * 0.7 - orb.position.x) * 0.08;
+                    orb.position.y += (-pointerY * 0.7 - orb.position.y) * 0.08;
+                    orb.rotation.y = t * 0.4;
+
+                    cubes.forEach(function (c, idx) {
+                        var angle = t * 0.6 + (idx / cubeCount) * Math.PI * 2;
+                        var r = 3.1 + Math.sin(t * 1.2 + idx) * 0.25;
+                        c.position.set(Math.cos(angle) * r, Math.sin(angle * 1.5) * 1.2, Math.sin(angle) * r * 0.5);
+                        c.rotation.set(angle * 2, angle, 0);
+                    });
+                };
+                return g;
+            }
+
+            /* Object positions in the space. Camera glides from one to the next. */
+            var O = [
+                [0, 0, 0],
+                [7, -1.5, -15],
+                [-6, 1.5, -30],
+                [7, -1, -45],
+                [-6, 1.2, -60],
+                [7, -1.2, -75],
+                [-6, 1.5, -90],
+                [1, 0, -105]
+            ];
+            var SWAY = [0, 3.2, -3.2, 3.2, -3.2, 3.2, -3.2, 0];
+            var makers = [makeHero, makeStack, makeKnot, makeChowse, makeLattice, makeRealEstate, makeAcademy, makePortal];
+            var objs = [];
+            makers.forEach(function (make, i) {
+                if (i >= N) return;
+                var group = make();
+                var holder = new THREE.Group();
+                holder.add(group);
+                holder.position.set(O[i][0], O[i][1], O[i][2]);
+                scene.add(holder);
+                objs.push({
+                    holder: holder,
+                    group: group,
+                    spin: 0,
+                    boost: 0,
+                    tx: 0,
+                    ty: 0
+                });
+            });
+            var count = objs.length;
+
+            /* Floating shards for depth */
+            var SHARDS = 240;
+            var shardMesh = new THREE.InstancedMesh(new THREE.OctahedronGeometry(1, 0),
+                new THREE.MeshStandardMaterial({
+                    roughness: 0.35,
+                    metalness: 0.25,
+                    flatShading: true
+                }), SHARDS);
+            var shardBase = [],
+                shardPhase = [],
+                shardSpeed = [],
+                shardScale = [];
+            var palette = [C.cyan, C.azure, C.emerald, C.amber, C.purple, C.coral].map(function (c) {
+                return new THREE.Color(c);
+            });
+
+            function lerp(a, b, f) {
+                return a + (b - a) * f;
+            }
+            for (var s = 0; s < SHARDS; s++) {
+                var p, tries = 0,
+                    ok;
+                do {
+                    var kk = Math.random() * (count - 1),
+                        a = Math.floor(kk),
+                        b = Math.min(a + 1, count - 1),
+                        ff = kk - a;
+                    p = new THREE.Vector3(
+                        lerp(O[a][0], O[b][0], ff) + (Math.random() - 0.5) * 26,
+                        lerp(O[a][1], O[b][1], ff) + (Math.random() - 0.5) * 14,
+                        lerp(O[a][2], O[b][2], ff) + (Math.random() - 0.5) * 18);
+                    ok = true;
+                    for (var q = 0; q < count; q++) {
+                        if (p.distanceTo(new THREE.Vector3(O[q][0], O[q][1], O[q][2])) < 4.5) {
+                            ok = false;
+                            break;
+                        }
+                    }
+                    tries++;
+                } while (!ok && tries < 12);
+                shardBase.push(p);
+                shardPhase.push(Math.random() * 6.28);
+                shardSpeed.push(0.2 + Math.random() * 0.5);
+                shardScale.push(0.05 + Math.random() * 0.17);
+                shardMesh.setColorAt(s, palette[s % palette.length]);
+            }
+            scene.add(shardMesh);
+            var dummy = new THREE.Object3D();
+
+            function updateShards(t) {
+                for (var i = 0; i < SHARDS; i++) {
+                    dummy.position.copy(shardBase[i]);
+                    dummy.position.y += Math.sin(t * shardSpeed[i] + shardPhase[i]) * 0.35;
+                    dummy.rotation.set(t * shardSpeed[i], t * shardSpeed[i] * 0.7 + shardPhase[i], 0);
+                    dummy.scale.setScalar(shardScale[i]);
+                    dummy.updateMatrix();
+                    shardMesh.setMatrixAt(i, dummy.matrix);
+                }
+                shardMesh.instanceMatrix.needsUpdate = true;
+            }
+            updateShards(0);
+
+            /* ----- Camera path (rebuilt on resize because layout differs on phones) ----- */
+            var camCurve, lookCurve, objScale = 1,
+                narrow = false;
+
+            function rebuildPath() {
+                var offx = narrow ? 0 : 3.4,
+                    offy = narrow ? -2.6 : 0;
+                var dist = narrow ? 15 : 11.5,
+                    sw = narrow ? 0.4 : 1;
+                var cp = [],
+                    lp = [];
+                for (var i = 0; i < count; i++) {
+                    var L = new THREE.Vector3(O[i][0] - offx, O[i][1] + offy, O[i][2]);
+                    lp.push(L);
+                    cp.push(new THREE.Vector3(L.x + SWAY[i] * sw, L.y + 0.6, L.z + dist));
+                }
+                camCurve = new THREE.CatmullRomCurve3(cp, false, 'catmullrom', 0.5);
+                lookCurve = new THREE.CatmullRomCurve3(lp, false, 'catmullrom', 0.5);
+                objScale = narrow ? 0.72 : 1;
+            }
+
+            function layout() {
+                var w = window.innerWidth,
+                    h = window.innerHeight;
+                renderer.setSize(w, h, false);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                narrow = w < 760 || w / h < 0.85;
+                rebuildPath();
+                computeTops();
+            }
+            window.addEventListener('resize', layout);
+            if (window.ResizeObserver) new ResizeObserver(computeTops).observe(document.body);
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(computeTops);
+            layout();
+            syncThemeUI();
+
+            window.addEventListener('pointermove', function (e) {
+                pointerX = (e.clientX / window.innerWidth) * 2 - 1;
+                pointerY = (e.clientY / window.innerHeight) * 2 - 1;
+            }, {
+                passive: true
+            });
+
+            /* ----- Render loop ----- */
+            function easeOutBack(x) {
+                var c1 = 1.70158,
+                    c3 = c1 + 1;
+                return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+            }
+
+            function clamp01(x) {
+                return x < 0 ? 0 : x > 1 ? 1 : x;
+            }
+
+            var camPos = new THREE.Vector3(),
+                lookPos = new THREE.Vector3();
+            var last = performance.now(),
+                t = 0,
+                f = progressF(),
+                activeIdx = -1;
+            var px = 0,
+                py = 0;
+
+            function frame(now) {
+                requestAnimationFrame(frame);
+                var dt = Math.min((now - last) / 1000, 0.05);
+                last = now;
+                t += dt;
+
+                var target = progressF();
+                f = reduce ? target : f + (target - f) * (1 - Math.exp(-dt * 5));
+
+                /* Ease inside each segment so the camera lingers at every station */
+                var fi = Math.min(Math.floor(f), count - 2),
+                    fr = clamp01(f - fi);
+                var fe = fi + fr * fr * fr * (fr * (fr * 6 - 15) + 10);
+                var tt = fe / (count - 1);
+                camCurve.getPoint(tt, camPos);
+                lookCurve.getPoint(tt, lookPos);
+
+                if (!reduce) {
+                    var k = 1 - Math.exp(-dt * 4);
+                    px += (pointerX - px) * k;
+                    py += (pointerY - py) * k;
+                }
+                camera.position.set(camPos.x + px * 0.7, camPos.y - py * 0.45, camPos.z);
+                camera.lookAt(lookPos);
+
+                var idx = Math.max(0, Math.min(count - 1, Math.round(fe)));
+                if (idx !== activeIdx) {
+                    activeIdx = idx;
+                    setActive(idx);
+                    if (!reduce) objs[idx].boost = 5;
+                }
+
+                var intro = reduce ? 1 : easeOutBack(clamp01((t - 0.15) / 1.7));
+                var kt = 1 - Math.exp(-dt * 5);
+                for (var i = 0; i < count; i++) {
+                    var o = objs[i],
+                        d = Math.abs(fe - i);
+                    var vis = d < 2.4;
+                    o.holder.visible = vis;
+                    if (!vis) continue;
+                    var w = clamp01(1 - d);
+                    var grow = clamp01((2.4 - d) / 0.8);
+                    grow = grow * grow * (3 - 2 * grow);
+                    o.holder.scale.setScalar(objScale * grow * (i === 0 ? intro : 1));
+
+                    o.boost *= Math.exp(-dt * 2.5);
+                    o.spin += ((reduce ? 0 : 0.12) + o.boost) * dt;
+                    o.tx += (py * 0.3 * w - o.tx) * kt;
+                    o.ty += (px * 0.6 * w - o.ty) * kt;
+                    o.holder.rotation.set(o.tx, o.spin + o.ty, 0);
+                    if (!reduce) o.group.userData.update(t, dt);
+                }
+                if (!reduce) updateShards(t);
+
+                renderer.render(scene, camera);
+            }
+            requestAnimationFrame(frame);
+        })();
+    </script>
+</body>
+
+</html>

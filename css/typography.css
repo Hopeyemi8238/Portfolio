@@ -1,0 +1,241 @@
+/* ==========================================================================
+   Typography, Components & Responsive Design
+   ========================================================================== */
+
+/* Hero Name Display */
+h1.name {
+    margin: 0 0 1.5rem;
+    font-family: var(--display);
+    font-weight: 800;
+    font-stretch: 82%;
+    font-size: clamp(4rem, 13vw, 10rem);
+    line-height: .84;
+    letter-spacing: -0.045em;
+}
+
+h1.name .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: .06em;
+}
+
+h1.name .line > span {
+    display: block;
+    transform: translateY(105%);
+    animation: rise 1.1s cubic-bezier(.2, .8, .2, 1) forwards;
+}
+
+h1.name .line:nth-child(2) > span {
+    animation-delay: .14s;
+}
+
+@keyframes rise {
+    to {
+        transform: none;
+    }
+}
+
+/* Section Headings */
+h2 {
+    margin: 0 0 1.1rem;
+    font: 700 clamp(2rem, 4.6vw, 3.5rem)/1.04 var(--display);
+    font-stretch: 90%;
+    letter-spacing: -0.025em;
+}
+
+p {
+    margin: 0 0 1rem;
+    max-width: 32rem;
+}
+
+.lede {
+    font-size: 1.35rem;
+    line-height: 1.45;
+}
+
+/* Call to Action Buttons & Links */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 1.75rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: .8rem 1.5rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--bg);
+    font: 600 1rem var(--display);
+    text-decoration: none;
+    transition: background-color .2s, color .2s;
+}
+
+.btn:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+.link {
+    color: var(--ink);
+    font: 600 1rem var(--display);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: .28em;
+}
+
+.link:hover {
+    text-decoration-thickness: 4px;
+}
+
+/* Station Project Metadata List */
+.meta {
+    margin: 1.5rem 0 1.5rem;
+    max-width: 30rem;
+    font: 400 .98rem/1.4 var(--display);
+}
+
+.meta > div {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 1rem;
+    padding: .6rem 0;
+    border-top: 1px solid var(--line);
+}
+
+.meta > div:last-child {
+    border-bottom: 1px solid var(--line);
+}
+
+.meta dt {
+    color: var(--muted);
+}
+
+.meta dd {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Contact Details & Footer */
+.mail {
+    display: inline-block;
+    margin: .25rem 0 0;
+    font: 600 clamp(1rem, 1.25vw, 1.125rem)/1.25 var(--display);
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: .25em;
+    overflow-wrap: anywhere;
+    transition: color .2s, text-decoration-color .2s;
+}
+
+.mail:hover {
+    color: var(--accent);
+}
+
+.social {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 0;
+    margin: 1.75rem 0 0;
+}
+
+.fine {
+    margin-top: 2.5rem;
+    font: 400 .9rem var(--display);
+    color: var(--muted);
+}
+
+.hint {
+    position: absolute;
+    left: clamp(1.25rem, 6vw, 5rem);
+    bottom: 2rem;
+    font: 500 .95rem var(--display);
+    color: var(--muted);
+    transition: opacity .4s;
+}
+
+.scrolled .hint {
+    opacity: 0;
+}
+
+/* ==========================================================================
+   Responsive Adaptations (Small screens: object up top, text panel below)
+   ========================================================================== */
+
+@media (max-width: 759px) {
+    .station {
+        align-items: flex-end;
+        padding: 5rem 1rem 5.5rem;
+    }
+    .copy {
+        background: var(--panel);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        padding: 1.25rem;
+        border-radius: 1rem;
+    }
+    h1.name {
+        font-size: clamp(3.4rem, 17vw, 5.5rem);
+        margin-bottom: 1rem;
+    }
+    .lede {
+        font-size: 1.15rem;
+    }
+    .hint {
+        display: none;
+    }
+    .meta > div {
+        grid-template-columns: 5.5rem 1fr;
+    }
+    .rail {
+        top: auto;
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: calc(.8rem + env(safe-area-inset-bottom, 0px));
+        flex-direction: row;
+        align-items: center;
+        gap: .1rem;
+        padding: .2rem .6rem;
+        background: var(--panel);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border-radius: 999px;
+    }
+    .rail .label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        opacity: 1;
+    }
+}
+
+/* ==========================================================================
+   Accessibility: Reduced Motion Preferences
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    h1.name .line > span {
+        animation: none;
+        transform: none;
+    }
+    .rail .label,
+    .rail .pip {
+        transition: none;
+    }
+}

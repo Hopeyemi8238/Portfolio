@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Taoheed Muhammed | Web & Mobile App Developer</title>
+    <meta name="description"
+        content="Portfolio of Taoheed Muhammed, a Web & Mobile App Developer with 5+ years of experience in React Native, React, PHP/Laravel, and modern web engineering.">
+
+    <!-- Google Fonts Preconnect & Self-hosted Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap">
+    <link rel="stylesheet" href="assets/fonts/fonts.css">
+
+    <!-- Modular Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- 3D Canvas Background -->
+    <canvas id="scene" aria-hidden="true"></canvas>
+
+    <!-- Top Header -->
+    <header class="top">
+        <a class="mark" href="#intro">Taoheed Muhammed</a>
+        <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark theme">
+            <svg class="moon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+            </svg>
+            <svg class="sun" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path
+                    d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg>
+        </button>
+    </header>
+
+    <!-- Station Navigation Rail -->
+    <nav class="rail" aria-label="Sections">
+        <a href="#intro"><span class="label">Intro</span><span class="pip"></span></a>
+        <a href="#about"><span class="label">About</span><span class="pip"></span></a>
+        <a href="#thinkrich"><span class="label">ThinkRich</span><span class="pip"></span></a>
+        <a href="#chowse"><span class="label">Chowse</span><span class="pip"></span></a>
+        <a href="#gat"><span class="label">GAT24</span><span class="pip"></span></a>
+        <a href="#kingkam"><span class="label">Kingkam</span><span class="pip"></span></a>
+        <a href="#newgrace"><span class="label">New Grace</span><span class="pip"></span></a>
+        <a href="#contact"><span class="label">Contact</span><span class="pip"></span></a>
+    </nav>
+
+    <!-- Main Content Stations -->
+    <main>
+        <!-- Station 0: Intro / Hero -->
+        <section class="station" id="intro" data-station>
+            <div class="copy wide">
+                <h1 class="name">
+                    <span class="line"><span>Taoheed</span></span>
+                    <span class="line"><span>Muhammed</span></span>
+                </h1>
+                <p class="lede">Web &amp; Mobile App Developer with 5+ years of experience crafting scalable mobile
+                    applications, dynamic web platforms, and high-performance interactive interfaces.</p>
+                <div class="actions">
+                    <a class="btn" href="#thinkrich">Explore selected work</a>
+                    <a class="link" href="#contact">Get in touch</a>
+                </div>
+            </div>
+            <p class="hint">Scroll to move through the work</p>
+        </section>
+
+        <!-- Station 1: About -->
+        <section class="station" id="about" data-station>
+            <div class="copy">
+                <h2>Engineering digital products that scale.</h2>
+                <p>I'm a Web and Mobile App Developer with over 5 years of professional experience building dependable
+                    digital solutions. My expertise spans cross-platform mobile development with React Native and modern
+                    full-stack web engineering with PHP/Laravel, React, and Node.js.</p>
+                <p>I have built interactive quiz engines, luxury member portals, media publications, real estate
+                    systems, and Web3 marketplaces—combining clean architecture, fast performance, and meticulous user
+                    experience.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Mobile Stack</dt>
+                        <dd>React Native, Expo, Cross-Platform iOS &amp; Android</dd>
+                    </div>
+                    <div>
+                        <dt>Web &amp; Backend</dt>
+                        <dd>React.js, TypeScript, PHP / Laravel, Node.js, MySQL</dd>
+                    </div>
+                    <div>
+                        <dt>Key Strengths</dt>
+                        <dd>API Integration, UI/UX Implementation, Performance Tuning</dd>
+                    </div>
+                    <div>
+                        <dt>Location</dt>
+                        <dd>Nigeria &middot; Available worldwide for remote roles &amp; contracts</dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+
+        <!-- Station 2: Project 1 (ThinkRich Naija) -->
+        <section class="station" id="thinkrich" data-station>
+            <div class="copy">
+                <h2>ThinkRich Naija</h2>
+                <p>A real-time, interactive quiz platform supporting both web and mobile applications with high
+                    concurrency. Engineered with an 8-second countdown question delivery system, dynamic scoring
+                    algorithms, secure authentication, and server-side validation to ensure competitive integrity.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2026</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Mobile App &amp; Backend Developer</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>React Native, PHP, Laravel, REST APIs, MySQL</dd>
+                    </div>
+                </dl>
+                <a class="link" href="https://app.thinkrichnaija.com" target="_blank" rel="noopener noreferrer">Visit
+                    ThinkRich Platform &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 3: Project 2 (Chowse) -->
+        <section class="station" id="chowse" data-station>
+            <div class="copy">
+                <h2>Chowse</h2>
+                <p>A smart meal planning and nutrition web and mobile application focused on high performance, smooth
+                    user experiences, and responsive design. Built with personalized meal recommendations, dietary
+                    preference controls, budget tracking calculators, offline-ready grocery checklists sorted by
+                    supermarket aisles, and integrated backend APIs for user calibration, dietary toggles, meal
+                    matching logic, and location-based local spot dining options.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2025 &ndash; 2026</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Mobile App Developer (Contract)</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>React Native, Cross-Platform Mobile, Dynamic REST APIs, Offline Storage</dd>
+                    </div>
+                </dl>
+                <a class="link" href="https://getchowse.com/" target="_blank" rel="noopener noreferrer">Visit Chowse
+                    Platform &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 4: Project 3 (Green Africa Time) -->
+        <section class="station" id="gat" data-station>
+            <div class="copy">
+                <h2>Green Africa Time</h2>
+                <p>A modern, responsive pan-African news and media platform delivering timely continental and global
+                    news. Built with dynamic content categories (Politics, Tech, Climate, Agriculture), an
+                    administrative editorial publishing workflow, and search &amp; filtering tools.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2026 &ndash; Present</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Full-Stack Web Developer</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>Responsive Web, Dynamic CMS, Search &amp; Filter APIs</dd>
+                    </div>
+                </dl>
+                <a class="link" href="https://www.gat24.com" target="_blank" rel="noopener noreferrer">Visit GAT24
+                    Platform &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 5: Project 4 (Kingkam Ventures) -->
+        <section class="station" id="kingkam" data-station>
+            <div class="copy">
+                <h2>Kingkam Ventures</h2>
+                <p>A modern, responsive real estate web platform to showcase property listings, architectural
+                    portfolios, and company services, improving online visibility and lead generation. Built with
+                    property listing management features, inquiry and viewing scheduling workflows, and optimized mobile
+                    performance and SEO.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2025 &ndash; Present</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Web Developer (Remote)</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>Responsive Web, Real Estate CMS, Lead Gen &amp; SEO</dd>
+                    </div>
+                </dl>
+                <a class="link" href="http://kingkamventures.com" target="_blank" rel="noopener noreferrer">Visit
+                    Kingkam Ventures &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 6: Project 5 (New Grace Academy) -->
+        <section class="station" id="newgrace" data-station>
+            <div class="copy">
+                <h2>New Grace Academy</h2>
+                <p>An institutional academic website and internal school portal upgraded to include dynamic content and
+                    responsive layouts, improving usability by 40%. Features an internal portal for staff and students
+                    to manage schedules, assignments, and announcements, integrated with secure fee payment processing
+                    and automated invoicing.</p>
+                <dl class="meta">
+                    <div>
+                        <dt>Year</dt>
+                        <dd>2025 &ndash; Present</dd>
+                    </div>
+                    <div>
+                        <dt>Role</dt>
+                        <dd>Web Developer (Remote)</dd>
+                    </div>
+                    <div>
+                        <dt>Built with</dt>
+                        <dd>Academic Web Portal, Dynamic CMS, Secure Payments</dd>
+                    </div>
+                </dl>
+                <a class="link" href="https://www.newgracenj.academy" target="_blank" rel="noopener noreferrer">Visit
+                    New Grace Academy &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Station 7: Contact -->
+        <section class="station" id="contact" data-station>
+            <div class="copy">
+                <h2>Let's build something remarkable.</h2>
+                <p>I'm booking new contract projects, full-time engineering roles, and team collaborations. Whether you
+                    need a cross-platform mobile app, a scalable backend, or a fast web platform, let's talk.</p>
+                <a class="mail" href="mailto:muhammedtaoheed@gmail.com">muhammedtaoheed@gmail.com</a>
+                <ul class="social">
+                    <li><a class="link" href="https://linkedin.com/in/taoheed-muhammed" target="_blank"
+                            rel="noopener noreferrer">LinkedIn</a></li>
+                    <li><a class="link" href="https://taoheed-porfolio.my.canva.site/" target="_blank"
+                            rel="noopener noreferrer">Canva Portfolio</a></li>
+                    <li><a class="link" href="tel:+2348106170404">+234 810 617 0404</a></li>
+                </ul>
+                <p class="fine">&copy; 2026 Taoheed Muhammed.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Three.js: Local bundle with CDN fallback -->
+    <script src="assets/vendor/three.min.js"></script>
+    <script>
+        if (!window.THREE) {
+            const fallbackScript = document.createElement('script');
+            fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+            document.head.appendChild(fallbackScript);
+        }
+    </script>
+
+    <!-- Modular Application Logic -->
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
